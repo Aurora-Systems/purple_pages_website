@@ -7,7 +7,9 @@ const Prepare=()=>{
 
    
     const get_token=async()=>{
-        const token  = await getToken()
+       try{
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const token:any  = await getToken()
         if(token!==undefined){
             sessionStorage.setItem("token", token)
             const acc_type = sessionStorage.getItem("type")
@@ -22,6 +24,9 @@ const Prepare=()=>{
             console.log("undefined")
             nav("/")
         }
+    }catch{
+        nav("/")
+    }
     }
 
     if(!isLoading && isAuthenticated){
