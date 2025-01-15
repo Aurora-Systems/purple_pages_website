@@ -203,6 +203,7 @@ const BusinessOnboarding = () => {
                                     onChange={(e) => set_user_data({ ...user_data, country: e.target.value })}
                                     required
                                 >
+                                    <option></option>
                                     {
                                         countries.map((item) => {
                                             return (
