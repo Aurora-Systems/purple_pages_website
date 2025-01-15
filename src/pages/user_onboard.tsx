@@ -120,7 +120,8 @@ const UserOnboarding=()=>{
                             <select  
                                 className="form-control"
                                 value={user_data.country}
-                                onChange={(e)=>set_user_data({...user_data, country:e.target.value})}    
+                                onChange={(e)=>set_user_data({...user_data, country:e.target.value})}
+                                required    
                             >
                                 <option></option>
                               {
