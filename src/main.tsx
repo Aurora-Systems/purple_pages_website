@@ -6,6 +6,9 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import './index.css'
 import Lander from './pages/lander.tsx'
 import Success from './pages/success.tsx'
+import Prepare from './pages/prepare.tsx'
+import UserOnboarding from './pages/user_onboard.tsx'
+import BusinessOnboarding from './pages/business_onboard.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -15,10 +18,21 @@ createRoot(document.getElementById('root')!).render(
       logoutUri='https://purplepageszim.com'
       redirectUri='https://purplepageszim.com/success'
     >
+       {/* <KindeProvider
+      clientId='287042c325ca4276a067b63f768bc2fe'
+      domain='https://purplepages.kinde.com'
+      logoutUri='http://localhost:5173'
+      redirectUri='http://localhost:5173/prepare'
+    > */}
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Lander/>}/>
-        <Route path="/success" element={<Success/>}/>
+        <Route path="/" element={<Lander/>} />
+        <Route path="/prepare" element={<Prepare/>} />
+        <Route path="/success" element={<Success/>} />
+        <Route path="/onboard">
+          <Route path="user" element={<UserOnboarding/>}/>
+          <Route path="business" element={<BusinessOnboarding/>}/>
+        </Route>
       </Routes>
     </BrowserRouter>
     </KindeProvider>

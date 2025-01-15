@@ -1,0 +1,1 @@
+export const api:string = "https://api.purplepageszim.com/"
