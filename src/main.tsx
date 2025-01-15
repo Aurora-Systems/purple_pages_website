@@ -16,7 +16,7 @@ createRoot(document.getElementById('root')!).render(
       clientId='287042c325ca4276a067b63f768bc2fe'
       domain='https://purplepages.kinde.com'
       logoutUri='https://purplepageszim.com'
-      redirectUri='https://purplepageszim.com/success'
+      redirectUri='https://purplepageszim.com/prepare'
     >
        {/* <KindeProvider
       clientId='287042c325ca4276a067b63f768bc2fe'
