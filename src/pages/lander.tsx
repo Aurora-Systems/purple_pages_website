@@ -6,7 +6,7 @@ const Lander = () => {
         <div className="container vh-100 d-flex align-items-center">
             <div>
 
-            <div className=" d-flex flex-row flex-wrap align-items-center justify-content-center">
+            <div className=" d-flex flex-row flex-wrap align-items-center justify-content-center mb-2">
 
                 <div className="col-sm">
                     <img src="https://ngratesc.sirv.com/Purple%20Pages/lander.png" className="img-fluid" alt="Mockup of purple pgaes" />
