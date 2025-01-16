@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { KindeProvider } from '@kinde-oss/kinde-auth-react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap-icons/font/bootstrap-icons.css" 
 import './index.css'
 import Lander from './pages/lander.tsx'
 import Success from './pages/success.tsx'
