@@ -43,6 +43,9 @@ const Lander = () => {
                 </div>
             </div>
             <Socials/>
+            <div className="mt-2 text-center">
+                <small><a href="/legal/privacy-policy" className="p_text">Privacy Policy</a></small>
+            </div>
             </div>
 
         </div>
