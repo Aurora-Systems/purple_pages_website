@@ -39,7 +39,7 @@ const BusinessOnboarding = () => {
             const data = { ...user_data, user_id: user?.id, email: user?.email }
             const request = await axios.post(`${api}onboarding/business`, data, {
                 headers: {
-                    Authorization: `Bearer ${access_token}`
+                    Authorization: `${access_token}`
                 }
             })
             if (request.data.status === true) {
