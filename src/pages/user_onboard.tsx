@@ -5,6 +5,7 @@ import { AuthenticateError, InternalError, ParseFailed } from "../components/tex
 import { useKindeAuth } from "@kinde-oss/kinde-auth-react"
 import { useNavigate } from "react-router-dom"
 import { api } from "../api/server_link"
+import PhoneInput from "react-phone-input-2"
 import countries from "../data/countries.json"
 import B from "../components/required"
 import axios from "axios"
@@ -106,14 +107,15 @@ const UserOnboarding = () => {
                             </div>
                             <div className="col-sm">
                                 <span>Contact Number<B /></span>
-                                <input
-                                    type="text"
-                                    className="form-control"
+                                <PhoneInput
+                                containerClass=""
+                                inputClass="w-100 form-control"
                                     value={user_data.contact_number}
-                                    placeholder="+263 ********"
-                                    onChange={(e) => set_user_data({ ...user_data, contact_number: e.target.value })}
-                                    required
-                                />
+                                    onChange={(e) => set_user_data({ ...user_data, contact_number:e })}
+                                    inputProps={{
+                                        required:true
+                                    }}
+                                    />
                             </div>
                             <div className="col-sm">
                                 <span>Country<B /></span>

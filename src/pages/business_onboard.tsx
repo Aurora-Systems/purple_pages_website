@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom"
 import { useKindeAuth } from "@kinde-oss/kinde-auth-react"
 import axios from "axios"
 import { api } from "../api/server_link"
+import PhoneInput from "react-phone-input-2"
 
 const BusinessOnboarding = () => {
     const { user } = useKindeAuth()
@@ -105,13 +106,15 @@ const BusinessOnboarding = () => {
                             </div>
                             <div className="col-sm mb-2">
                                 <span>Contact Number<B /></span>
-                                <input
-                                    type="text"
-                                    className="form-control"
+                                 <PhoneInput
+                                containerClass=""
+                                inputClass="w-100 form-control"
                                     value={user_data.contact_number}
-                                    onChange={(e) => set_user_data({ ...user_data, contact_number: e.target.value })}
-                                    required
-                                />
+                                    onChange={(e) => set_user_data({ ...user_data, contact_number:e })}
+                                    inputProps={{
+                                        required:true
+                                    }}
+                                    />
                             </div>
                             <div className="col-sm mb-2 position-relative w-100">
                                 <span>Industry<B /></span>

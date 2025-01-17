@@ -48,3 +48,8 @@ ul{
   animation-timing-function: ease-in-out;
   animation-direction: alternate-reverse;
 }
+
+input, select{
+  height: 35px!important;
+  font-family: "Poppins", serif !important;
+}

@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { KindeProvider } from '@kinde-oss/kinde-auth-react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import "react-phone-input-2/lib/style.css"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-icons/font/bootstrap-icons.css" 
 import './index.css'
