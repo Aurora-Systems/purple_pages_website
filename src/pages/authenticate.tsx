@@ -65,7 +65,7 @@ const Authenticate = () => {
 
     return (
         <div className="vh-100 d-flex align-items-center justify-content-center">
-            <div className="text-center">
+            <div className="container text-center">
                 <img src={"https://ngratesc.sirv.com/Purple%20Pages/logo.png"} className="img-fluid" width={100} alt="logo" />
                 <h3>Create An Account</h3>
                 {!otp_sent?
