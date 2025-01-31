@@ -1,46 +1,43 @@
-import { FormEvent, useState, useRef } from "react"
+import { FormEvent, useState, useRef, useEffect } from "react"
 import { BusinessType, business_default, BusinessSchema } from "../schemas/business_schema"
 import { search } from "ss-search"
 import { toast, ToastContainer } from "react-toastify"
 import countries from "../data/countries.json"
 import categories from "../data/categories.json"
 import B from "../components/required"
-import { AuthenticateError, InternalError, ParseFailed } from "../components/texts"
+import { InternalError, ParseFailed } from "../components/texts"
 import { useNavigate } from "react-router-dom"
-import { useKindeAuth } from "@kinde-oss/kinde-auth-react"
 import axios from "axios"
 import { api } from "../api/server_link"
 import PhoneInput from "react-phone-input-2"
+import supabase from "../init/init_supababse"
+import { Spinner } from "react-bootstrap"
 
 const BusinessOnboarding = () => {
-    const { user } = useKindeAuth()
     const nav = useNavigate()
     const [user_data, set_user_data] = useState<BusinessType>(business_default)
     const [industry_result, set_industry_result] = useState<Array<{ value: string, label: string }>>([])
     const [show_results, set_show_results] = useState<boolean>(false)
     const [loading, set_loading] = useState<boolean>(false)
+    const [token, set_token] = useState<string>("")
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const industry_input: any = useRef(null)
     const handle_submit = async (e: FormEvent) => {
         e.preventDefault()
         set_loading(true)
         try {
+
             if (user_data.industry.length === 0) {
                 return toast("Industry Required")
-            }
-            const access_token = sessionStorage.getItem("token")
-            if (access_token === null && user === undefined) {
-                toast(AuthenticateError)
-                return setTimeout(() => nav("/"), 5000)
-            }
+            }   
 
             if (!BusinessSchema.safeParse(user_data).success) {
                 return toast(ParseFailed)
             }
-            const data = { ...user_data, user_id: user?.id, email: user?.email }
-            const request = await axios.post(`${api}onboarding/business`, data, {
+            const post_data = { ...user_data }
+            const request = await axios.post(`${api}onboarding/business`, post_data, {
                 headers: {
-                    Authorization: `${access_token}`
+                    Authorization: `${token}`
                 }
             })
             if (request.data.status === true) {
@@ -70,6 +67,24 @@ const BusinessOnboarding = () => {
             set_show_results(false)
         }
     }
+
+    useEffect(()=>{
+        const user_type = sessionStorage.getItem("type")
+        if(user_type!=="business"){
+         nav("/")
+        }
+        supabase.auth.getSession().then(res=>{
+        if(res.error!==null){
+            toast("⚠️ Something went wrong, redirecting to home page in 5 seconds")
+            return setTimeout(()=>nav("/"), 5000)
+        }
+        set_token(res.data.session?.access_token as string)
+        set_user_data({...user_data, user_id: res.data.session?.user?.id as string, email: res.data.session?.user?.email as string})
+     }).catch(()=>{
+         toast("⚠️ Something went wrong, redirecting to home page in 5 seconds")
+         return setTimeout(()=>nav("/"), 5000)
+     })
+     },[])
     return (
         <div className="min-vh-100  d-flex align-items-center justify-content-center">
             <div className="container">
@@ -221,7 +236,7 @@ const BusinessOnboarding = () => {
                             By Onboarding You agree To Allow Us To Contact You About Our Launch
                         </div>
                         <div className="text-center">
-                            <button type="submit" className="btn p_btn" disabled={loading}>Onboard</button>
+                            <button type="submit" className="btn p_btn" disabled={loading}>{loading?<Spinner size="sm"/>:"Onboard"}</button>
                         </div>
                     </form>
                 </div>

@@ -1,39 +1,35 @@
-import { FormEvent, useState } from "react"
+import { FormEvent, useEffect, useState } from "react"
 import { user_default, UserType, UserSchema } from "../schemas/user_schema"
 import { toast, ToastContainer } from "react-toastify"
-import { AuthenticateError, InternalError, ParseFailed } from "../components/texts"
-import { useKindeAuth } from "@kinde-oss/kinde-auth-react"
+import { InternalError, ParseFailed } from "../components/texts"
 import { useNavigate } from "react-router-dom"
 import { api } from "../api/server_link"
 import PhoneInput from "react-phone-input-2"
 import countries from "../data/countries.json"
 import B from "../components/required"
 import axios from "axios"
+import supabase from "../init/init_supababse"
+import { Spinner } from "react-bootstrap"
 
 
 const UserOnboarding = () => {
     const nav = useNavigate()
-    const { user } = useKindeAuth()
     const [user_data, set_user_data] = useState<UserType>(user_default)
     const [loading, set_loading] = useState<boolean>(false)
+    const [token, set_token] = useState<string>("")
 
     const handle_submit = async (e: FormEvent) => {
         e.preventDefault()
         set_loading(true)
         try {
-            const access_token = sessionStorage.getItem("token")
-            if (access_token === null && user === undefined) {
-                toast(AuthenticateError)
-                return setTimeout(() => nav("/"), 5000)
-            }
 
             if (!UserSchema.safeParse(user_data).success) {
                 return toast(ParseFailed)
             }
-            const data = { ...user_data, user_id: user?.id, email: user?.email }
-            const request = await axios.post(`${api}onboarding/user`, data, {
+            const post_data = { ...user_data}
+            const request = await axios.post(`${api}onboarding/user`, post_data, {
                 headers: {
-                    Authorization: `${access_token}`
+                    Authorization: `${token}`
                 }
             })
             if (request.data.status === true) {
@@ -48,6 +44,24 @@ const UserOnboarding = () => {
             set_loading(false)
         }
     }
+
+    useEffect(()=>{
+       const user_type = sessionStorage.getItem("type")
+       if(user_type===null){
+        nav("/")
+       }
+       supabase.auth.getSession().then(res=>{
+       if(res.error!==null){
+           toast("⚠️ Something went wrong, redirecting to home page in 5 seconds")
+           return setTimeout(()=>nav("/"), 5000)
+       }
+       set_token(res.data.session?.access_token as string)
+       set_user_data({...user_data, user_id: res.data.session?.user?.id as string, email: res.data.session?.user?.email as string})
+    }).catch(()=>{
+        toast("⚠️ Something went wrong, redirecting to home page in 5 seconds")
+        return setTimeout(()=>nav("/"), 5000)
+    })
+    },[])
 
     return (
         <div className="vh-100  d-flex align-items-center justify-content-center">
@@ -100,7 +114,7 @@ const UserOnboarding = () => {
                                 <input
                                     type="email"
                                     className="form-control"
-                                    value={user?.email as string}
+                                    value={user_data.email}
                                     disabled
                                     required
                                 />
@@ -140,7 +154,7 @@ const UserOnboarding = () => {
                             By Onboarding You agree To Allow Us To Contact You About Our Launch
                         </div>
                         <div className="text-center">
-                            <button type="submit" className="btn p_btn" disabled={loading}>Onboard</button>
+                            <button type="submit" className="btn p_btn" disabled={loading}>{loading?<Spinner size="sm"/>:"Onboard"}</button>
                         </div>
                     </form>
                 </div>

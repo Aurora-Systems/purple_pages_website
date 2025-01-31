@@ -1,7 +1,7 @@
-import { useKindeAuth } from "@kinde-oss/kinde-auth-react"
 import Socials from "../components/socials_comp";
+import { useNavigate } from "react-router-dom";
 const Lander = () => {
-    const { register } = useKindeAuth();
+    const nav = useNavigate()
     return (
         <div className="container vh-100 d-flex align-items-center">
             <div>
@@ -32,12 +32,12 @@ const Lander = () => {
                         <p className="p_text">Sign Up for Early Access</p>
                         <button className="btn p_btn me-2" onClick={() => {
                             sessionStorage.setItem("type", "individual")
-                            register()
+                            nav("/authenticate")
                         }}>For Indivudals</button>
                         <span>or</span>
                         <button className="btn p_btn ms-2" onClick={() => {
                             sessionStorage.setItem("type", "business")
-                            register()
+                            nav("/authenticate")
                         }}>For Businesses</button>
                     </div>
                 </div>

@@ -1,1 +1,1 @@
-export const api:string = "https://api.purplepageszim.com/"
+export const api:string = "http://localhost:8080/" //"https://api.purplepageszim.com/"
