@@ -1,43 +1,57 @@
-import { FormEvent, useState, useRef, useEffect } from "react"
+import { FormEvent, useState } from "react"
 import { BusinessType, business_default, BusinessSchema } from "../schemas/business_schema"
-import { search } from "ss-search"
+// import { search } from "ss-search"
 import { toast, ToastContainer } from "react-toastify"
-import countries from "../data/countries.json"
-import categories from "../data/categories.json"
+// import countries from "../data/countries.json"
+// import categories from "../data/categories.json"
 import B from "../components/required"
 import { InternalError, ParseFailed } from "../components/texts"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import { api } from "../api/server_link"
 import PhoneInput from "react-phone-input-2"
-import supabase from "../init/init_supababse"
+// import supabase from "../init/init_supababse"
 import { Spinner } from "react-bootstrap"
+import supabase from "../init/init_supababse"
 
 const BusinessOnboarding = () => {
     const nav = useNavigate()
     const [user_data, set_user_data] = useState<BusinessType>(business_default)
-    const [industry_result, set_industry_result] = useState<Array<{ value: string, label: string }>>([])
-    const [show_results, set_show_results] = useState<boolean>(false)
+    const [password, setPassword] = useState<string>("")
+    const [confirmPassword, setConfirmPassword] = useState<string>("")
+    // const [industry_result, set_industry_result] = useState<Array<{ value: string, label: string }>>([])
+    // const [show_results, set_show_results] = useState<boolean>(false)
     const [loading, set_loading] = useState<boolean>(false)
-    const [token, set_token] = useState<string>("")
+    // const [token, set_token] = useState<string>("")
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const industry_input: any = useRef(null)
+    // const industry_input: any = useRef(null)
     const handle_submit = async (e: FormEvent) => {
         e.preventDefault()
         set_loading(true)
+       
         try {
+             if(password !== confirmPassword){
+            return toast("Passwords do not match")
+        }
 
-            if (user_data.industry.length === 0) {
-                return toast("Industry Required")
-            }   
+              const {data,error} = await supabase.auth.signUp({
+                email:user_data.email,
+                password:password
+            })
+
+            if(error){
+                return toast(error.message)
+            } 
+            console.log(data)
+           
 
             if (!BusinessSchema.safeParse(user_data).success) {
                 return toast(ParseFailed)
             }
-            const post_data = { ...user_data }
+            const post_data = { ...user_data, user_id: data.user?.id}
             const request = await axios.post(`${api}onboarding/business`, post_data, {
                 headers: {
-                    Authorization: `${token}`
+                    Authorization: `${data.session?.access_token}`
                 }
             })
             if (request.data.status === true) {
@@ -52,53 +66,57 @@ const BusinessOnboarding = () => {
         }
     }
 
-    const handle_industry_search = (e: string) => {
-        if (e.length > 2) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const data: { value: string, label: string }[] | any = search(categories, ["value"], e)
-            if (data.length > 0) {
-                set_industry_result(data)
-                set_show_results(true)
-            } else {
-                set_show_results(false)
-            }
+   
 
-        } else {
-            set_show_results(false)
-        }
-    }
+    // const handle_industry_search = (e: string) => {
+    //     if (e.length > 2) {
+    //         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    //         const data: { value: string, label: string }[] | any = search(categories, ["value"], e)
+    //         if (data.length > 0) {
+    //             set_industry_result(data)
+    //             set_show_results(true)
+    //         } else {
+    //             set_show_results(false)
+    //         }
 
-    useEffect(()=>{
-        const user_type = sessionStorage.getItem("type")
-        if(user_type!=="business"){
-         nav("/")
-        }
-        supabase.auth.getSession().then(res=>{
-        if(res.error!==null){
-            toast("⚠️ Something went wrong, redirecting to home page in 5 seconds")
-            return setTimeout(()=>nav("/"), 5000)
-        }
-        set_token(res.data.session?.access_token as string)
-        set_user_data({...user_data, user_id: res.data.session?.user?.id as string, email: res.data.session?.user?.email as string})
-     }).catch(()=>{
-         toast("⚠️ Something went wrong, redirecting to home page in 5 seconds")
-         return setTimeout(()=>nav("/"), 5000)
-     })
-     },[])
+    //     } else {
+    //         set_show_results(false)
+    //     }
+    // }
+
+    // useEffect(()=>{
+    //     const user_type = sessionStorage.getItem("type")
+    //     if(user_type!=="business"){
+    //      nav("/")
+    //     }
+    //     supabase.auth.getSession().then(res=>{
+    //     if(res.error!==null){
+    //         toast("⚠️ Something went wrong, redirecting to home page in 5 seconds")
+    //         return setTimeout(()=>nav("/"), 5000)
+    //     }
+    //     set_token(res.data.session?.access_token as string)
+    //     set_user_data({...user_data, user_id: res.data.session?.user?.id as string, email: res.data.session?.user?.email as string})
+    //  }).catch(()=>{
+    //      toast("⚠️ Something went wrong, redirecting to home page in 5 seconds")
+    //      return setTimeout(()=>nav("/"), 5000)
+    //  })
+    //  },[])
     return (
-        <div className="min-vh-100  d-flex align-items-center justify-content-center">
-            <div className="container">
+        <div className="min-vh-100  page_grad d-flex align-items-center justify-content-center">
+            <div className="container d-flex flex-column justify-content-center align-items-center">
 
-                <div className="text-center">
-                    <img src="https://ngratesc.sirv.com/Purple%20Pages/logo.png" className="img-fluid" width={"100"} alt="Purple Pages Logo" />
-                </div>
-                <div className="text-center">
-                    <h1 className="fw-bold">Lets Get Your Business <u className="p_text">Ready!</u></h1>
-                    <p>Fill in the details to get your account ready</p>
-                </div>
-                <div>
+                
+                <div className="onboard_form p-3 rounded-5">
+
                     <form onSubmit={handle_submit}>
-                        <div className="row">
+                        <div className="text-center">
+                    <img src="https://ngratesc.sirv.com/Purple%20Pages/logo.png" className="img-fluid" width={"80"} alt="Purple Pages Logo" />
+                </div>
+                <div className="text-center">
+                    <h4 className="fw-bold">Lets Get Your Business <u className="p_text">Ready!</u></h4>
+                </div>
+
+                        <div className="">
                             <div className="col-sm mb-2">
                                 <span>Business Name<B /></span>
                                 <input
@@ -131,7 +149,7 @@ const BusinessOnboarding = () => {
                                     }}
                                     />
                             </div>
-                            <div className="col-sm mb-2 position-relative w-100">
+                            {/* <div className="col-sm mb-2 position-relative w-100">
                                 <span>Industry<B /></span>
                                 <input
                                     type="text"
@@ -161,9 +179,9 @@ const BusinessOnboarding = () => {
                                     <></>
                                 }
 
-                            </div>
+                            </div> */}
                         </div>
-                        <div>
+                        {/* <div>
                             <span>Description (1000 words max)<B /> </span>
                             <textarea
                                 className="form-control"
@@ -171,8 +189,8 @@ const BusinessOnboarding = () => {
                                 onChange={(e) => set_user_data({ ...user_data, description: e.target.value })}
                                 required
                             ></textarea>
-                        </div>
-                        <div className="mb-2">
+                        </div> */}
+                        {/* <div className="mb-2">
                             <span>Street Address<B /></span>
                             <input
                                 type="text"
@@ -181,8 +199,8 @@ const BusinessOnboarding = () => {
                                 onChange={(e) => set_user_data({ ...user_data, street_address: e.target.value })}
                                 required
                             />
-                        </div>
-                        <div className="row">
+                        </div> */}
+                        {/* <div className="row">
                             <div className="col-sm mb-2">
                                 <span>City<B /></span>
                                 <input
@@ -231,6 +249,14 @@ const BusinessOnboarding = () => {
                                     }
                                 </select>
                             </div>
+                        </div> */}
+                        <div className="mb-2">
+                            <span>Password <B/></span>
+                               <input type="password" className="form-control" minLength={6} value={password} onChange={(e)=>setPassword(e.target.value)} required/> 
+                        </div>
+                        <div className="mb-2">
+                            <span>Repeat Password <B/></span>
+                               <input type="password" className="form-control" minLength={6} value={confirmPassword} onChange={(e)=>setConfirmPassword(e.target.value)} required/> 
                         </div>
                         <div className="text-center mb-2">
                             By Onboarding You agree To Allow Us To Contact You About Our Launch

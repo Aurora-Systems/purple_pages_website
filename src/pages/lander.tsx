@@ -32,12 +32,12 @@ const Lander = () => {
                         <p className="p_text">Sign Up for Early Access</p>
                         <button className="btn p_btn me-2" onClick={() => {
                             sessionStorage.setItem("type", "individual")
-                            nav("/authenticate")
+                            nav("/onboard/user")
                         }}>For Indivudals</button>
                         <span>or</span>
                         <button className="btn p_btn ms-2" onClick={() => {
                             sessionStorage.setItem("type", "business")
-                            nav("/authenticate")
+                            nav("/onboard/business")
                         }}>For Businesses</button>
                     </div>
                 </div>

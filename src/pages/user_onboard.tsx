@@ -1,11 +1,11 @@
-import { FormEvent, useEffect, useState } from "react"
+import { FormEvent, useState } from "react"
 import { user_default, UserType, UserSchema } from "../schemas/user_schema"
 import { toast, ToastContainer } from "react-toastify"
 import { InternalError, ParseFailed } from "../components/texts"
 import { useNavigate } from "react-router-dom"
 import { api } from "../api/server_link"
 import PhoneInput from "react-phone-input-2"
-import countries from "../data/countries.json"
+// import countries from "../data/countries.json"
 import B from "../components/required"
 import axios from "axios"
 import supabase from "../init/init_supababse"
@@ -16,20 +16,37 @@ const UserOnboarding = () => {
     const nav = useNavigate()
     const [user_data, set_user_data] = useState<UserType>(user_default)
     const [loading, set_loading] = useState<boolean>(false)
-    const [token, set_token] = useState<string>("")
+    const [password, setPassword] = useState<string>("")
+    const [confirmPassword, setConfirmPassword] = useState<string>("")
+    // const [token, set_token] = useState<string>("")
 
     const handle_submit = async (e: FormEvent) => {
         e.preventDefault()
         set_loading(true)
         try {
 
+             if(password !== confirmPassword){
+            return toast("Passwords do not match")
+        }
+
+        
+                      const {data,error} = await supabase.auth.signUp({
+                        email:user_data.email,
+                        password:password
+                    })
+        
+                    if(error){
+                        return toast(error.message)
+                    } 
+                    console.log(data)
+
             if (!UserSchema.safeParse(user_data).success) {
                 return toast(ParseFailed)
             }
-            const post_data = { ...user_data}
+            const post_data = { ...user_data, user_id:data.user?.id }
             const request = await axios.post(`${api}onboarding/user`, post_data, {
                 headers: {
-                    Authorization: `${token}`
+                    Authorization: `${data.session?.access_token}`,
                 }
             })
             if (request.data.status === true) {
@@ -45,38 +62,38 @@ const UserOnboarding = () => {
         }
     }
 
-    useEffect(()=>{
-       const user_type = sessionStorage.getItem("type")
-       if(user_type===null){
-        nav("/")
-       }
-       supabase.auth.getSession().then(res=>{
-       if(res.error!==null){
-           toast("⚠️ Something went wrong, redirecting to home page in 5 seconds")
-           return setTimeout(()=>nav("/"), 5000)
-       }
-       set_token(res.data.session?.access_token as string)
-       set_user_data({...user_data, user_id: res.data.session?.user?.id as string, email: res.data.session?.user?.email as string})
-    }).catch(()=>{
-        toast("⚠️ Something went wrong, redirecting to home page in 5 seconds")
-        return setTimeout(()=>nav("/"), 5000)
-    })
-    },[])
+    // useEffect(()=>{
+    //    const user_type = sessionStorage.getItem("type")
+    //    if(user_type===null){
+    //     nav("/")
+    //    }
+    //    supabase.auth.getSession().then(res=>{
+    //    if(res.error!==null){
+    //        toast("⚠️ Something went wrong, redirecting to home page in 5 seconds")
+    //        return setTimeout(()=>nav("/"), 5000)
+    //    }
+    //    set_token(res.data.session?.access_token as string)
+    //    set_user_data({...user_data, user_id: res.data.session?.user?.id as string, email: res.data.session?.user?.email as string})
+    // }).catch(()=>{
+    //     toast("⚠️ Something went wrong, redirecting to home page in 5 seconds")
+    //     return setTimeout(()=>nav("/"), 5000)
+    // })
+    // },[])
 
     return (
-        <div className="vh-100  d-flex align-items-center justify-content-center">
-            <div className="container">
+        <div className="min-vh-100 page_grad d-flex align-items-center justify-content-center">
+            <div className="container d-flex justify-content-center">
 
-                <div className="text-center">
-                    <img src="https://ngratesc.sirv.com/Purple%20Pages/logo.png" className="img-fluid" width={"100"} alt="Purple Pages Logo" />
-                </div>
-                <div className="text-center">
-                    <h1 className="fw-bold">Lets Get You <u className="p_text">Ready!</u></h1>
-                    <p>Fill in the details to get your account ready</p>
-                </div>
-                <div>
+               
+                <div className="onboard_form w-50 p-3 rounded-5">
                     <form onSubmit={handle_submit}>
-                        <div className="row">
+                         <div className="text-center">
+                    <img src="https://ngratesc.sirv.com/Purple%20Pages/logo.png" className="img-fluid" width={"80"} alt="Purple Pages Logo" />
+                </div>
+                <div className="text-center">
+                    <h4 className="fw-bold">Lets Get You <u className="p_text">Ready!</u></h4>
+                </div>
+                        <div className="">
                             <div className="col-sm mb-2">
                                 <span>First Name<B /></span>
                                 <input
@@ -97,7 +114,7 @@ const UserOnboarding = () => {
                                     required
                                 />
                             </div>
-                            <div className="col-sm mb-2">
+                            {/* <div className="col-sm mb-2">
                                 <span>Date Of Birth<B /></span>
                                 <input
                                     type="date"
@@ -106,58 +123,52 @@ const UserOnboarding = () => {
                                     onChange={(e) => set_user_data({ ...user_data, date_of_birth: e.target.value })}
                                     required
                                 />
-                            </div>
+                            </div> */}
                         </div>
-                        <div className="row">
+                        <div className="">
                             <div className="col-sm mb-2">
                                 <span>Email<B /></span>
                                 <input
                                     type="email"
                                     className="form-control"
                                     value={user_data.email}
-                                    disabled
+                                    onChange={(e) => set_user_data({ ...user_data, email: e.target.value })}
                                     required
                                 />
                             </div>
-                            <div className="col-sm">
+                            <div className="col-sm mb-2">
                                 <span>Contact Number<B /></span>
                                 <PhoneInput
-                                containerClass=""
-                                inputClass="w-100 form-control"
+                                    containerClass=""
+                                    inputClass="w-100 form-control"
                                     value={user_data.contact_number}
-                                    onChange={(e) => set_user_data({ ...user_data, contact_number:e })}
+                                    onChange={(e) => set_user_data({ ...user_data, contact_number: e })}
                                     inputProps={{
-                                        required:true
+                                        required: true
                                     }}
-                                    />
+                                />
                             </div>
-                            <div className="col-sm">
-                                <span>Country<B /></span>
-                                <select
-                                    className="form-control"
-                                    value={user_data.country}
-                                    onChange={(e) => set_user_data({ ...user_data, country: e.target.value })}
-                                    required
-                                >
-                                    <option></option>
-                                    {
-                                        countries.map((item) => {
-                                            return (
-                                                <option value={item.name} key={item.code}>{item.name}</option>
-                                            )
-                                        })
-                                    }
-                                </select>
+                            <div className="mb-2">
+                                <span>Password <B /></span>
+                                <input type="password" className="form-control" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} required />
                             </div>
+                            <div className="mb-2">
+                                <span>Repeat Password <B /></span>
+                                <input type="password" className="form-control" minLength={6} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+                            </div>
+
                         </div>
                         <div className="text-center mb-2">
                             By Onboarding You agree To Allow Us To Contact You About Our Launch
                         </div>
                         <div className="text-center">
-                            <button type="submit" className="btn p_btn" disabled={loading}>{loading?<Spinner size="sm"/>:"Onboard"}</button>
+                            <button type="submit" className="btn p_btn" disabled={loading}>{loading ? <Spinner size="sm" /> : "Onboard"}</button>
                         </div>
                     </form>
                 </div>
+            </div>
+            <div className="mb-5 text-center">
+                <br />
             </div>
             <ToastContainer />
         </div>

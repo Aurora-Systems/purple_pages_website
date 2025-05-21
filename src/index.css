@@ -55,3 +55,13 @@ input, select{
   font-family: "Poppins", serif !important;
 }
 
+.onboard_form{
+  
+  background-color: white;
+  
+}
+
+.page_grad{
+  background: linear-gradient(to right, var(--p), var(--s));
+ 
+}
